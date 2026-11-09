@@ -1,5 +1,5 @@
 # 別ファイルからの呼び出し例
-from recorder_chart import generate_fingering_chart
+from generate import generate_fingering_chart
 
 # ぶんぶんぶんのメロディ（2行構成）
 bun_bun_bun = [
