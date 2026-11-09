@@ -4,11 +4,14 @@ import matplotlib.patches as patches
 # 【バロック式】各音の穴のふさぎ方（True=ふさぐ、False=あける）
 # 配列の意味：[裏穴, 表1, 表2, 表3, 表4, 表5, 表6, 表7]
 FINGERINGS_BAROQUE = {
-    'ド': [True, True, True, True, False, False, False, False],     # ソプラノの「ソ」と同じ指
-    'レ': [True, True, True, False, False, False, False, False],    # ソプラノの「ラ」と同じ指
-    'ミ': [True, True, False, False, False, False, False, False],   # ソプラノの「シ」と同じ指
-    'ファ': [True, False, True, False, False, False, False, False],  # ソプラノの高い「ド」と同じ指
-    'ソ': [False, False, True, False, False, False, False, False],  # ソプラノの高い「レ」と同じ指
+    '低ソ': [True, True, True, True, True, True, True, True],       # 【追加】一番低いソ（全閉）
+    'ド': [True, True, True, True, False, False, False, False],     # ソプラノの「ソ」と同じ
+    'レ': [True, True, True, False, False, False, False, False],    # ソプラノの「ラ」と同じ
+    'ミ': [True, True, False, False, False, False, False, False],   # ソプラノの「シ」と同じ
+    'ファ': [True, False, True, False, False, False, False, False],  # ソプラノの高い「ド」と同じ
+    'ソ': [False, False, True, False, False, False, False, False],  # ソプラノの高い「レ」と同じ
+    '高ド': [False, False, True, True, True, False, True, True],    # 【追加】高いド（ソプラノの高いファと同じ）
+    '高レ': [False, False, True, True, True, True, True, False],    # 【追加】高いレ（ソプラノの高いソと同じ）
     'ー': None # 伸ばす音（空白）
 }
 
@@ -56,19 +59,12 @@ def draw_recorder(ax, note):
 def generate_fingering_chart(melody, output_filename='recorder_unshi.png'):
     """
     外部からメロディ（2次元配列）を受け取り、運指表の画像を生成・保存する関数
-    
-    Parameters:
-    ----------
-    melody : list of list of str
-        メロディデータ（各行が楽譜の1段に対応する2次元配列）
-    output_filename : str, default 'recorder_unshi.png'
-        保存する画像ファイル名
     """
     num_rows = len(melody)
     # 最も長い行の音数、または最低18マスを確保
     max_cols = max(max(len(row) for row in melody), 18) 
     
-    # 動的にグリッドサイズを設定（渡された行数に応じる）
+    # 動的にグリッドサイズを設定
     fig, axes = plt.subplots(num_rows, max_cols, figsize=(max_cols * 1.33, num_rows * 3))
 
     # 1行だけの場合は axes が1次元配列になるため2次元に統一
@@ -88,10 +84,22 @@ def generate_fingering_chart(melody, output_filename='recorder_unshi.png'):
     plt.close() # メモリ解放
     print(f"【大成功】運指画像（{output_filename}）を保存しました！")
 
-# このスクリプトが直接実行された場合のみテスト用の第九を実行
+# テスト用のメイン処理：第九の完全版（4段構成）
 if __name__ == '__main__':
+    # 第九（歓喜の歌）完全版メロディ
     TEST_MELODY = [
-        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'ミ', 'レ', 'レ', 'ー'],
-        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー']
+        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'ミ', 'レ', 'レ', 'ー'], # 1段目
+        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー'], # 2段目
+        ['レ', 'レ', 'ミ', 'ド', 'レ', 'ミ', 'ファ', 'ミ', 'ド', 'レ', 'ミ', 'ファ', 'ミ', 'レ', 'ド', 'レ', '低ソ', 'ー'], # 3段目（低いソが登場）
+        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー']  # 4段目
     ]
-    generate_fingering_chart(TEST_MELODY, 'dai9_test.png')
+    
+    # ※もし「高ド」「高レ」を使ったサビの山場（別パートなど）を試したい場合は、以下を有効にしてください
+    # TEST_MELODY = [
+    #     ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'ミ', 'レ', 'レ', 'ー'],
+    #     ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー'],
+    #     ['レ', 'レ', 'ミ', 'ド', 'レ', 'ミ', 'ファ', 'ミ', 'ド', 'レ', 'ミ', 'ファ', 'ミ', 'レ', 'ド', 'レ', '低ソ', 'ー'],
+    #     ['高ド', '高ド', '高レ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー'] # 4段目を山場アレンジにする場合
+    # ]
+
+    generate_fingering_chart(TEST_MELODY, 'dai9_full_unshi.png')
