@@ -10,7 +10,6 @@ on:
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-# 変更: 動的生成した HTML を直接 Artifact にアップロードするため、contents は read のままでOKです
 permissions:
   contents: read
   pages: write
@@ -33,9 +32,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 追加: PNGファイルをスキャンして index.html を動的に生成するステップ
-      # (リポジトリ内に既に index.html があっても上書きされます)
-      name: Generate index.html for PNG list
+      # 修正点: 先頭にハイフン「- 」を追加し、構文エラーを修正しました
+      - name: Generate index.html for PNG list
         run: |
           cat << 'EOF' > index.html
           <!DOCTYPE html>
@@ -59,7 +57,6 @@ jobs:
           EOF
 
           # リポジトリ内のすべての .png ファイルを検索して HTML のカード要素を追加
-          # (特定のフォルダに限定したい場合は 'find images -name "*.png"' のように変更してください)
           find . -name "*.png" -not -path "*/.*" | sort | while read -r file; do
             CLEAN_PATH=$(echo "$file" | sed 's|^\./||')
             FILENAME=$(basename "$CLEAN_PATH")
@@ -78,7 +75,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository (直前で生成した index.html も含まれます)
+          # Upload entire repository
           path: '.'
 
       - name: Deploy to GitHub Pages
