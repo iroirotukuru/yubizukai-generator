@@ -19,8 +19,27 @@
     
     <div class="grid">
         <!-- IMAGE_LIST_PLACEHOLDER -->
-        <!-- ここにActionsが自動で<div class="card">...</div>を挿入します -->
     </div>
 
+    <script>
+        // Actionsが作った画像リスト（images.json）を読み込んで全ロード
+        fetch('images.json')
+            .then(response => response.json())
+            .then(pngFiles => {
+                const grid = document.querySelector('.grid');
+                pngFiles.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <a href="${file}" target="_blank">
+                            <img src="${file}" alt="${file}">
+                        </a>
+                        <p>${file}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            })
+            .catch(err => console.error('画像の読み込みに失敗しました:', err));
+    </script>
 </body>
 </html>
