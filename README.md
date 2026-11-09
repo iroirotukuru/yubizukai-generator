@@ -1,7 +1,7 @@
 # yubizukai-generator
 リコーダーの指遣いを生成するスクリプト
 # 使い方
- ```python
+```python
 # 別ファイルからの呼び出し例
 from generate_chart import generate_fingering_chart
 
