@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 # 【バロック式】各音の穴のふさぎ方（True=ふさぐ、False=あける）
-# 配列の意味: [裏穴, 表1, 表2, 表3, 表4, 表5, 表6, 表7]
 # 配列の意味：[裏穴, 表1, 表2, 表3, 表4, 表5, 表6, 表7]
 FINGERINGS_BAROQUE = {
     'ド': [True, True, True, True, False, False, False, False],     # ソプラノの「ソ」と同じ指
@@ -13,17 +12,8 @@ FINGERINGS_BAROQUE = {
     'ー': None # 伸ばす音（空白）
 }
 
-
-# 教科書の第九（歓喜の歌）1段目〜4段目のメロディデータ
-MELODY = [
-    ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'ミ', 'レ', 'レ', 'ー'],
-    ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー'],
-    ['レ', 'レ', 'ミ', 'ド', 'レ', 'ミ', 'ファ', 'ミ', 'ド', 'レ', 'ミ', 'ファ', 'ミ', 'レ', 'ド', 'レ', 'ソ', 'ー'],
-    ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー']
-]
-
 def draw_recorder(ax, note):
-    """1つの音の運指図を描画する関数"""
+    """1つの音の運指図を描画する内部関数"""
     ax.set_xlim(-1, 2)
     ax.set_ylim(-1, 9)
     ax.axis('off')
@@ -63,18 +53,45 @@ def draw_recorder(ax, note):
         if i == 0:
             ax.text(x - 0.2, y, '裏', fontsize=8, ha='right', va='center')
 
-# 全体を4段×横18マスのグリッドで綺麗に並べる
-fig, axes = plt.subplots(4, 18, figsize=(24, 12))
+def generate_fingering_chart(melody, output_filename='recorder_unshi.png'):
+    """
+    外部からメロディ（2次元配列）を受け取り、運指表の画像を生成・保存する関数
+    
+    Parameters:
+    ----------
+    melody : list of list of str
+        メロディデータ（各行が楽譜の1段に対応する2次元配列）
+    output_filename : str, default 'recorder_unshi.png'
+        保存する画像ファイル名
+    """
+    num_rows = len(melody)
+    # 最も長い行の音数、または最低18マスを確保
+    max_cols = max(max(len(row) for row in melody), 18) 
+    
+    # 動的にグリッドサイズを設定（渡された行数に応じる）
+    fig, axes = plt.subplots(num_rows, max_cols, figsize=(max_cols * 1.33, num_rows * 3))
 
-for row_idx, row_notes in enumerate(MELODY):
-    for col_idx in range(18):
-        ax = axes[row_idx, col_idx]
-        if col_idx < len(row_notes):
-            draw_recorder(ax, row_notes[col_idx])
-        else:
-            ax.axis('off') # 余った右端のマスは白紙にする
+    # 1行だけの場合は axes が1次元配列になるため2次元に統一
+    if num_rows == 1:
+        axes = axes.reshape(1, -1)
 
-plt.tight_layout()
-# 高画質で画像ファイルとして保存
-plt.savefig('dai9_baroque_unshi.png', dpi=300)
-print("【大成功】4段のバロック式運指画像（dai9_baroque_unshi.png）を保存しました！")
+    for row_idx, row_notes in enumerate(melody):
+        for col_idx in range(max_cols):
+            ax = axes[row_idx, col_idx]
+            if col_idx < len(row_notes):
+                draw_recorder(ax, row_notes[col_idx])
+            else:
+                ax.axis('off') # 余った右端のマスは白紙にする
+
+    plt.tight_layout()
+    plt.savefig(output_filename, dpi=300)
+    plt.close() # メモリ解放
+    print(f"【大成功】運指画像（{output_filename}）を保存しました！")
+
+# このスクリプトが直接実行された場合のみテスト用の第九を実行
+if __name__ == '__main__':
+    TEST_MELODY = [
+        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'ミ', 'レ', 'レ', 'ー'],
+        ['ミ', 'ミ', 'ファ', 'ソ', 'ソ', 'ファ', 'ミ', 'レ', 'ド', 'ド', 'レ', 'ミ', 'レ', 'ド', 'ド', 'ー']
+    ]
+    generate_fingering_chart(TEST_MELODY, 'dai9_test.png')
