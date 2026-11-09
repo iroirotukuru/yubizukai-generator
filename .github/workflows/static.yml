@@ -41,7 +41,7 @@ jobs:
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>PNG画像一覧</title>
+              <title>画像一覧</title>
               <style>
                   body { font-family: sans-serif; margin: 20px; background-color: #f9f9f9; }
                   h1 { color: #333; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
@@ -52,7 +52,7 @@ jobs:
               </style>
           </head>
           <body>
-              <h1>PNGイメージギャラリー</h1>
+              <h1>リコーダー　指使い一覧</h1>
               <div class="grid">
           EOF
 
