@@ -3,7 +3,7 @@
 # 使い方
 ```python
 # 別ファイルからの呼び出し例
-from generate_chart import generate_fingering_chart
+from generate import generate_fingering_chart
 
 # 弾きたい新しいメロディを外から指定
 my_melody = [
