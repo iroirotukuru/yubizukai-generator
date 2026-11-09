@@ -1,0 +1,86 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# 変更: 動的生成した HTML を直接 Artifact にアップロードするため、contents は read のままでOKです
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 追加: PNGファイルをスキャンして index.html を動的に生成するステップ
+      # (リポジトリ内に既に index.html があっても上書きされます)
+      name: Generate index.html for PNG list
+        run: |
+          cat << 'EOF' > index.html
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>PNG画像一覧</title>
+              <style>
+                  body { font-family: sans-serif; margin: 20px; background-color: #f9f9f9; }
+                  h1 { color: #333; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+                  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+                  .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+                  .card img { max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto 10px; }
+                  .card p { margin: 0; font-size: 14px; word-break: break-all; color: #555; }
+              </style>
+          </head>
+          <body>
+              <h1>PNGイメージギャラリー</h1>
+              <div class="grid">
+          EOF
+
+          # リポジトリ内のすべての .png ファイルを検索して HTML のカード要素を追加
+          # (特定のフォルダに限定したい場合は 'find images -name "*.png"' のように変更してください)
+          find . -name "*.png" -not -path "*/.*" | sort | while read -r file; do
+            CLEAN_PATH=$(echo "$file" | sed 's|^\./||')
+            FILENAME=$(basename "$CLEAN_PATH")
+            echo "  <div class=\"card\"><a href=\"${CLEAN_PATH}\" target=\"_blank\"><img src=\"${CLEAN_PATH}\" alt=\"${FILENAME}\"></a><p>${FILENAME}</p></div>" >> index.html
+          done
+
+          cat << 'EOF' >> index.html
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository (直前で生成した index.html も含まれます)
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
