@@ -4,7 +4,7 @@ import matplotlib.patches as patches
 # 【バロック式】各音の穴のふさぎ方（True=ふさぐ、False=あける）
 # 配列の意味：[裏穴, 表1, 表2, 表3, 表4, 表5, 表6, 表7]
 FINGERINGS_BAROQUE = {
-    '低ソ': [True, True, True, True, True, True, True, True],       # 【追加】一番低いソ（全閉）
+    '低ソ': [True, True, True, True, True, True, True, False],       
     'ド': [True, True, True, True, False, False, False, False],     # ソプラノの「ソ」と同じ
     'レ': [True, True, True, False, False, False, False, False],    # ソプラノの「ラ」と同じ
     'ミ': [True, True, False, False, False, False, False, False],   # ソプラノの「シ」と同じ
